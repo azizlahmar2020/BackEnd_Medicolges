@@ -1,45 +1,71 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const UserRoutes = require('./routers/userRoutes');
+const express = require("express");
+const logger = require("morgan");
+const mongoose = require("mongoose");
+const http = require("http");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { Server } = require("socket.io");
+const ChatRouter = require("./routers/Chat");
+  const UserRoutes = require('./routers/userRoutes');
 const AuthRoutes = require('./routers/authRoutes');
 const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
 
-const connectDB = require('./config/database');
-
 const app = express();
+const httpServer = http.createServer(app);
 
-app.use(express.json());
-// Activer CORS
-app.use('/profiles', express.static('public/profiles'));
 
-app.use(express.json());
-const allowedOrigins = ['http://127.0.0.1:5173'];
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+const io = new Server(httpServer, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true
     },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    transports: ['websocket'], // Assurez-vous que WebSocket est activé
+});
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true
 }));
-// Connect to MongoDB database
-connectDB().then(() => {
- app.use('/auth',AuthRoutes);
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+});
+
+app.use(logger("dev"));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+
+// Gestion de la connexion socket.io
+io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
+    });
+});
+
+// Routes
+app.use("/Chat", ChatRouter(io)); // Passer io au routeur
+app.use('/auth',AuthRoutes);
  app.use('/users',UserRoutes);
  app.use('/form',FormRoutes);
  app.use('/projects', projectRoutes);
+  app.use('/profiles', express.static('public/profiles'));
 
 
+// Connexion à la base de données mongoose
+mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-  });
-}).catch((err) => {
-  console.error("Error connecting to MongoDB :", err);
+// Démarrage du serveur
+const PORT = 3001;
+httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+
 });
