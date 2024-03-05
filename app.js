@@ -6,6 +6,10 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const ChatRouter = require("./routers/Chat");
+  const UserRoutes = require('./routers/userRoutes');
+const AuthRoutes = require('./routers/authRoutes');
+const FormRoutes = require('./routers/formRoutes');
+const projectRoutes = require('./routers/projectRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -46,7 +50,11 @@ io.on("connection", (socket) => {
 
 // Routes
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
-
+app.use('/auth',AuthRoutes);
+ app.use('/users',UserRoutes);
+ app.use('/form',FormRoutes);
+ app.use('/projects', projectRoutes);
+  app.use('/profiles', express.static('public/profiles'));
 
 
 // Connexion à la base de données mongoose
@@ -59,4 +67,5 @@ mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
 const PORT = 3001;
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+
 });
