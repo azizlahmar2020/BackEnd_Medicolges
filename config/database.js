@@ -3,7 +3,7 @@
 
   const connectDB = async () => {
     try {
-      await mongoose.connect('mongodb://localhost:27017/MediColges');
+      await mongoose.connect('mongodb://localhost:27017/pi_db');
       console.log('MongoDB Connected');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);
