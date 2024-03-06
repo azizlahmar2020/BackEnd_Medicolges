@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const InstitutionRoutes = require('./routes/InstitutionRoutes');
-const CategoryRoutes = require('./routes/CategoryRoutes');
-const SubcategoryRoutes = require('./routes/SubcategoryRoutes');
+const InstitutionRoutes = require('./routers/InstitutionRoutes');
+const CategoryRoutes = require('./routers/CategoryRoutes');
+const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
 const connectDB = require('./config/database');
 const app = express();
 
