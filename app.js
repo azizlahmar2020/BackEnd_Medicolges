@@ -1,3 +1,4 @@
+
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
@@ -10,6 +11,9 @@ const ChatRouter = require("./routers/Chat");
 const AuthRoutes = require('./routers/authRoutes');
 const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
+const InstitutionRoutes = require('./routes/InstitutionRoutes');
+const CategoryRoutes = require('./routes/CategoryRoutes');
+const SubcategoryRoutes = require('./routes/SubcategoryRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -56,7 +60,13 @@ app.use('/auth',AuthRoutes);
  app.use('/projects', projectRoutes);
   app.use('/profiles', express.static('public/profiles'));
 
+  app.use('/', InstitutionRoutes);
+  
+  // Use Category routes after establishing connection to the database
+  app.use('/', CategoryRoutes);
 
+  // Use Subcategory routes after establishing connection to the database
+  app.use('/', SubcategoryRoutes);
 // Connexion à la base de données mongoose
 mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
     useNewUrlParser: true,
