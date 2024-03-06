@@ -7,9 +7,6 @@ const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const ChatRouter = require("./routers/Chat");
   const UserRoutes = require('./routers/userRoutes');
-const InstitutionRoutes = require('./routers/InstitutionRoutes');
-const CategoryRoutes = require('./routers/CategoryRoutes');
-const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
 const AuthRoutes = require('./routers/authRoutes');
 const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
@@ -58,13 +55,6 @@ app.use('/auth',AuthRoutes);
  app.use('/form',FormRoutes);
  app.use('/projects', projectRoutes);
   app.use('/profiles', express.static('public/profiles'));
-  app.use('/', InstitutionRoutes);
-  
-  // Use Category routes after establishing connection to the database
-  app.use('/', CategoryRoutes);
-
-  // Use Subcategory routes after establishing connection to the database
-  app.use('/', SubcategoryRoutes);
 
 
 // Connexion à la base de données mongoose
