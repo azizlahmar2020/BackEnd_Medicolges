@@ -5,6 +5,21 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
 
+const verifyUserAndGetSession = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+      return res.json("token is missing");
+  } else {
+      jwt.verify(token, "sarrarayen", (err, decoded) => {
+          if (err) {
+              return res.json("error with token");
+          } else {
+              req.user = decoded; // Set decoded user information to request object
+              next();
+          }
+      });
+  }
+};
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -126,7 +141,13 @@ const verifyUser = (req, res, next) => {
     }
 };
 
+exports.getIdMyProfile = (req, res) => {
+  // Maintenant, vous pouvez accéder à l'objet de session utilisateur en utilisant req.userSession
+  const userSession = req.userSession;
 
+  // Répondez avec l'objet de session utilisateur
+  res.json({ userSession });
+};
 
 
 

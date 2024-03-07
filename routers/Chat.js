@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const ConversationModel = require('../models/Conversation');
 const MessageModel = require('../models/Message');
+const jwt = require('jsonwebtoken');
+const UserModel = require('../models/user');
 
 module.exports = function (io) {
     router.get('/getExistingRoom/:emitterId/:receiverId', async (req, res) => {
@@ -107,6 +109,10 @@ module.exports = function (io) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
+
+
+
+    
 
     router.get('/getMessages/:room', async (req, res) => {
         const room = req.params.room;
