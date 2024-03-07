@@ -91,6 +91,23 @@ module.exports = function (io) {
         }
     });
 
+
+    router.get('/getRoom/:idUser1',async(req,res)=>{     
+           const idUser1 = req.params.idUser1;
+        try {
+            // Récupérer les conversations de l'utilisateur 1
+            const rooms = await ConversationModel.find({ members: { $in: [idUser1] } });
+    
+            // Extraire les IDs des autres membres des conversations
+            const otherMembers = rooms.map(room => room.members.filter(memberId => memberId !== idUser1));
+            const uniqueOtherMembers = Array.from(new Set(otherMembers.flat())); // Supprimer les doublons
+    
+            res.json({ otherMembers: uniqueOtherMembers });
+        } catch (error) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     router.get('/getMessages/:room', async (req, res) => {
         const room = req.params.room;
         try {
