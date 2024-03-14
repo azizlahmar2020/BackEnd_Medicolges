@@ -11,8 +11,10 @@ const AuthRoutes = require('./routers/authRoutes');
 const InstitutionRoutes = require('./routers/InstitutionRoutes');
 const CategoryRoutes = require('./routers/CategoryRoutes');
 const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
+
 const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
+const formRoutes = require('./routers/form.route');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -27,10 +29,11 @@ const io = new Server(httpServer, {
     transports: ['websocket'], // Assurez-vous que WebSocket est activé
 });
 app.use(cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: "",
+    methods: ["GET", "POST","PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
 }));
+
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
@@ -55,7 +58,6 @@ io.on("connection", (socket) => {
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
 app.use('/auth',AuthRoutes);
  app.use('/users',UserRoutes);
- app.use('/form',FormRoutes);
  app.use('/projects', projectRoutes);
   app.use('/profiles', express.static('public/profiles'));
   app.use('/', InstitutionRoutes);
@@ -65,6 +67,7 @@ app.use('/auth',AuthRoutes);
 
   // Use Subcategory routes after establishing connection to the database
   app.use('/', SubcategoryRoutes);
+  app.use('/', formRoutes);
 
 
 // Connexion à la base de données mongoose

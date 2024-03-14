@@ -1,23 +1,45 @@
 // controllers/projectController.js
 const Project = require('../models/projects');
-
-
+const jwt = require('jsonwebtoken');
 
 exports.createProjectt = async (req, res) => {
   try {
     // Get the data from the request body
-    const { nom, desc, responsable, domaine } = req.body;
+    const { nom, desc, responsable, domaine,members } = req.body;
 
-    // Create a new project with the data
-    const newProject = await Project.create({
-      nom: nom,
-      desc: desc,
-      responsable: responsable,
-      domaine: domaine,
+    // Check if token exists in the request headers or cookies
+    const authorizationHeader = req.headers.authorization;
+    const token = authorizationHeader ? authorizationHeader.split(" ")[1] : req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const secretKey = "sarrarayen"; // Replace with your actual secret key
+
+    // Verify the token using the secret key
+    jwt.verify(token, secretKey, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      const userId = decoded.userId; // Extract the user ID from the decoded token payload
+
+      console.log('User ID:', userId); // Log the user ID
+
+      // Create a new project with the data and user ID
+      const newProject = await Project.create({
+        nom: nom,
+        desc: desc,
+        responsable: responsable,
+        domaine: domaine,
+        userId: userId,
+        members: members,
+        // Associate the user ID with the project
+      });
+
+      // Respond with the created project
+      res.status(201).json({ project: newProject });
     });
-
-    // Respond with the created project
-    res.status(201).json({ project: newProject });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -49,7 +71,32 @@ exports.getAllProjects = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+exports.getAllProjectsOfUser = async (req, res) => {
+  try {
+    const authorizationHeader = req.headers.authorization;
+    const token = authorizationHeader ? authorizationHeader.split(" ")[1] : req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
+    const secretKey = "sarrarayen"; // Replace with your actual secret key
+
+    jwt.verify(token, secretKey, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      const userId = decoded.userId; // Extract the user ID from the decoded token payload
+
+      // Find projects associated with the user ID
+      const projects = await Project.find({ userId: userId });
+
+      res.json(projects);
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // Get a project by ID
 exports.getProjectById = async (req, res) => {
   try {
@@ -111,5 +158,26 @@ exports.createProject = upload.single('file'), async (req, res) => {
     // Rest of your code
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+exports.addMember = async (req, res) => {
+  const { projectId, memberId } = req.params; // Extract projectId and memberId from URL parameters
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    if (project.members.includes(memberId)) {
+      return res.status(400).json({ error: 'User is already a member of the project' });
+    }
+
+    project.members.push(memberId);
+    await project.save();
+
+    return res.status(200).json({ message: 'Member added successfully', project });
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
