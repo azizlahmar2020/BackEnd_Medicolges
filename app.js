@@ -6,10 +6,13 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const ChatRouter = require("./routers/Chat");
-  const UserRoutes = require('./routers/userRoutes');
+const UserRoutes = require('./routers/userRoutes');
 const AuthRoutes = require('./routers/authRoutes');
-const FormRoutes = require('./routers/formRoutes');
+const InstitutionRoutes = require('./routers/InstitutionRoutes');
+const CategoryRoutes = require('./routers/CategoryRoutes');
+const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
 const projectRoutes = require('./routers/projectRoutes');
+const formRoutes = require('./routers/form.route');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -24,10 +27,11 @@ const io = new Server(httpServer, {
     transports: ['websocket'], // Assurez-vous que WebSocket est activé
 });
 app.use(cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: "",
+    methods: ["GET", "POST","PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
 }));
+
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
@@ -52,9 +56,16 @@ io.on("connection", (socket) => {
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
 app.use('/auth',AuthRoutes);
  app.use('/users',UserRoutes);
- app.use('/form',FormRoutes);
  app.use('/projects', projectRoutes);
   app.use('/profiles', express.static('public/profiles'));
+  app.use('/', InstitutionRoutes);
+  
+  // Use Category routes after establishing connection to the database
+  app.use('/', CategoryRoutes);
+
+  // Use Subcategory routes after establishing connection to the database
+  app.use('/', SubcategoryRoutes);
+  app.use('/', formRoutes);
 
 
 // Connexion à la base de données mongoose

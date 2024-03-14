@@ -41,5 +41,6 @@ router.post('/register/:role', upload.single('profileImage'), authController.reg
 
 // Protected route for fetching the user profile
 router.get('/myprofile', authenticateToken, authController.myprofile);
+router.get('/getIdMyProfile', authController.getIdMyProfile)
 
 module.exports = router;

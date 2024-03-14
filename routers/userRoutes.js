@@ -1,23 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const UserModel = require('../models/user');
-const userController=require('../controllers/UserController')
+const userController = require('../controllers/UserController');
 
-
-
-router.get('/showUsers',userController.showUsers);
-
-
-router.get('/getUser/:id',userController.getUserById);
-
-router.put('/updateUser/:id',userController.updateUser);
-
+router.get('/showUsers', userController.showUsers);
+router.get('/getUser/:id', userController.getUserById);
+router.put('/updateUser/:id', userController.updateUser);
 router.delete('/deleteUser/:id', userController.deleteUser);
+router.put('/updateUserRole/:id', userController.updateUserRole);
+router.get('/getUserByEmail/:email', userController.getUserByEmail); // New route for getUserByEmail
 
-
-// Route pour mettre à jour le rôle d'un utilisateur
-router.put('/updateUserRole/:id',userController.updateUserRole);
-
-
- 
 module.exports = router;
