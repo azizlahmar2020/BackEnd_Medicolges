@@ -91,6 +91,52 @@ module.exports = function (io) {
         }
     });
 
+<<<<<<< Updated upstream
+=======
+
+    router.get('/getRoom/:idUser1',async(req,res)=>{     
+           const idUser1 = req.params.idUser1;
+        try {
+            // Récupérer les conversations de l'utilisateur 1
+            const rooms = await ConversationModel.find({ members: { $in: [idUser1] } });
+    
+            // Extraire les IDs des autres membres des conversations
+            const otherMembers = rooms.map(room => room.members.filter(memberId => memberId !== idUser1));
+            const uniqueOtherMembers = Array.from(new Set(otherMembers.flat())); // Supprimer les doublons
+    
+            res.json({ otherMembers: uniqueOtherMembers });
+        } catch (error) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+
+
+    
+router.get('/getUsername/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Concaténer le nom et le prénom pour former une seule chaîne
+        const fullName = `${user.name} ${user.lastname}`;
+
+        // Retourner la chaîne contenant le nom complet de l'utilisateur
+        res.json({ fullName });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+>>>>>>> Stashed changes
     router.get('/getMessages/:room', async (req, res) => {
         const room = req.params.room;
         try {
