@@ -3,10 +3,14 @@ const router = express.Router();
 const UserModel = require('../models/user');
 
 
-exports.showUsers= async(req, res) => {
-    UserModel.find({}, 'name lastname email gender birthdate role profileImage') // Specify fields to include
-        .then(users => res.json(users))
-        .catch(err => res.status(500).json(err));
+exports.showUsers = async (req, res) => {
+    try {
+        const users = await UserModel.find({}, 'name lastname email gender birthdate role profileImage sessionId');
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 };
 
 
@@ -64,6 +68,32 @@ exports.deleteUser= async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+//non + prenom
+
+exports.getUserNameById = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Concaténer le nom et le prénom pour former une seule chaîne
+        const fullName = `${user.name} ${user.lastname}`;
+
+        // Retourner la chaîne contenant le nom complet de l'utilisateur
+        res.json({ fullName });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+
 
 // Route pour mettre à jour le rôle d'un utilisateur
 exports.updateUserRole= async (req, res) => {

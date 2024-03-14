@@ -142,11 +142,11 @@ const verifyUser = (req, res, next) => {
 };
 
 exports.getIdMyProfile = (req, res) => {
-  // Maintenant, vous pouvez accéder à l'objet de session utilisateur en utilisant req.userSession
-  const userSession = req.userSession;
+    // Maintenant, vous pouvez accéder à l'objet de session utilisateur en utilisant req.userSession
+    const userSession = req.userSession;
 
-  // Répondez avec l'objet de session utilisateur
-  res.json({ userSession });
+    // Répondez avec l'objet de session utilisateur
+    res.json({ userSession });
 };
 
 

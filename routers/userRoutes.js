@@ -18,6 +18,7 @@ router.delete('/deleteUser/:id', userController.deleteUser);
 // Route pour mettre à jour le rôle d'un utilisateur
 router.put('/updateUserRole/:id',userController.updateUserRole);
 
+router.get('/getUserFullName/:id', userController.getUserNameById);
 
  
 module.exports = router;

@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const ConversationModel = require('../models/Conversation');
 const MessageModel = require('../models/Message');
-const jwt = require('jsonwebtoken');
-const UserModel = require('../models/user');
 
 module.exports = function (io) {
     router.get('/getExistingRoom/:emitterId/:receiverId', async (req, res) => {
@@ -93,6 +91,8 @@ module.exports = function (io) {
         }
     });
 
+<<<<<<< Updated upstream
+=======
 
     router.get('/getRoom/:idUser1',async(req,res)=>{     
            const idUser1 = req.params.idUser1;
@@ -113,7 +113,30 @@ module.exports = function (io) {
 
 
     
+router.get('/getUsername/:id', async (req, res) => {
+    const id = req.params.id;
 
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Concaténer le nom et le prénom pour former une seule chaîne
+        const fullName = `${user.name} ${user.lastname}`;
+
+        // Retourner la chaîne contenant le nom complet de l'utilisateur
+        res.json({ fullName });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+>>>>>>> Stashed changes
     router.get('/getMessages/:room', async (req, res) => {
         const room = req.params.room;
         try {
