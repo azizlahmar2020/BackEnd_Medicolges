@@ -93,7 +93,6 @@ module.exports = function (io) {
         }
     });
 
-
     router.get('/getRoom/:idUser1',async(req,res)=>{     
            const idUser1 = req.params.idUser1;
         try {
@@ -109,7 +108,6 @@ module.exports = function (io) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
-
 
 
     
@@ -133,7 +131,6 @@ router.get('/getUsername/:id', async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
-
 
 
     router.get('/getMessages/:room', async (req, res) => {

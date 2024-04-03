@@ -4,22 +4,8 @@ const UserModel = require('../models/user');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 
-const verifyUserAndGetSession = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-      return res.json("token is missing");
-  } else {
-      jwt.verify(token, "sarrarayen", (err, decoded) => {
-          if (err) {
-              return res.json("error with token");
-          } else {
-              req.user = decoded; // Set decoded user information to request object
-              next();
-          }
-      });
-  }
-};
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -31,7 +17,7 @@ exports.login = async (req, res) => {
         const passwordCorrect = await bcrypt.compare(password, user.password);
         if (passwordCorrect) {
             const secretKey = "sarrarayen"; 
-            const expiration = '1h'; 
+            const expiration = '2h'; 
             jwt.sign(
                 { userId: user._id, email: user.email },
                 secretKey,
@@ -52,7 +38,37 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.editProfile = async (req, res) => {
+  const { name, lastname, email, gender, birthdate } = req.body; // Assuming these are the fields you want to allow to update
+  const userId = req.params.userId; // Assuming you pass the user's ID as a URL parameter
 
+  try {
+      // Find the user by ID
+      const user = await UserModel.findById(userId);
+      if (!user) {
+          return res.status(404).json({ error: "User not found" });
+      }
+
+      // Update the user's profile with the new details
+      user.name = name || user.name;
+      user.lastname = lastname || user.lastname;
+      user.email = email || user.email;
+      user.gender = gender || user.gender;
+      user.birthdate = birthdate || user.birthdate;
+
+      // Check if a new profile image was uploaded
+      if (req.file) {
+          const profileImage = req.file.filename; // Get the filename of the uploaded image
+          user.profileImage = profileImage; // Update the profile image
+      }
+
+      await user.save(); // Save the updated user details
+
+      res.json("Profile updated successfully");
+  } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 exports.register= async (req, res) => {
     const { name, lastname, email, password, gender, birthdate } = req.body;
@@ -126,21 +142,7 @@ router.get('/logout', async (req, res) => {
     res.json({ status: "Logged out" });
 });
 
-const verifyUser = (req, res, next) => {
-    const token = req.cookies.token;
-    if (!token) {
-        return res.json("token is missing");
-    } else {
-        jwt.verify(token, "sarrarayen", (err, decoded) => {
-            if (err) {
-                return res.json("error with token");
-            } else {
-                req.user = decoded; // Set decoded user information to request object
-                next();
-            }
-        });
-    }
-};
+
 exports.getIdMyProfile = (req, res) => {
     // Assurez-vous que req.userSession contient l'ID de session
     const userSession = req.userSession;
@@ -156,3 +158,79 @@ exports.getIdMyProfile = (req, res) => {
   };
   
 
+ // Function to generate a unique token
+const generateResetToken = (userId) => {
+  return jwt.sign({ userId }, 'sarrarayen', { expiresIn: '1h' }); // Customize the expiration time as needed
+};
+
+// Function to send a verification email
+const sendVerificationEmail = async (email, resetToken) => {
+  const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      auth: {
+          user: 'sarra03122000@gmail.com',
+          pass: 'zooe zcao hvur qzwv',
+      },
+  });
+
+  const resetLink = `http://127.0.0.1:5173/reset-password?token=${resetToken}`; // Customize the reset link URL
+
+  const mailOptions = {
+    from: 'sarra03122000@gmail.com',
+    to: email,
+    subject: 'Password Reset',
+    html: `<p>Dear MediColGes User,</p>
+        <p>We received a request to reset your password. Click the link below to reset your password:</p>
+        <p><a href="${resetLink}">Reset Password</a></p>
+        <p>If you didn't request to reset your password, you can ignore this email.</p>
+        <p>MediColGes Team</p>
+    `
+};
+  try {
+      await transporter.sendMail(mailOptions);
+      console.log('E-mail sent');
+  } catch (error) {
+      console.log('E-mail sending failed');
+      throw new Error('E-mail sending failed');
+  }
+};
+
+// Controller function to handle forgot password request
+exports.reset = async (req, res) => {
+  try {
+      const { email } = req.body;
+      const resetToken = generateResetToken(email);
+      await sendVerificationEmail(email, resetToken);
+      res.status(200).json({ message: 'Le code est envoyé! Vérifiez votre boîte mail svp!' });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
+
+// Controller function to handle password reset
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  jwt.verify(token, 'sarrarayen', async (err, decoded) => {
+      if (err) {
+          return res.status(400).json({ message: 'Invalid or expired token' });
+      } else {
+          try {
+              const userEmail = decoded.userId; // Assuming userId is actually the email
+              const hashedPassword = await bcrypt.hash(password, 10);
+              const user = await UserModel.findOne({ email: userEmail }); // Find user by email
+              console.log(user)
+              if (!user) {
+                  return res.status(404).json({ message: 'User not found' });
+              }
+              user.password = hashedPassword;
+              await user.save();
+              res.status(200).json({ message: 'Password updated successfully' });
+          } catch (error) {
+              res.status(500).json({ message: 'Failed to update password', error: error.message });
+          }
+      }
+  });
+};

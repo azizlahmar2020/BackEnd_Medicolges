@@ -40,7 +40,13 @@ router.post('/login', authController.login);
 router.post('/register/:role', upload.single('profileImage'), authController.register);
 
 // Protected route for fetching the user profile
-router.get('/myprofile', authenticateToken, authController.myprofile);
 router.get('/getIdMyProfile', authController.getIdMyProfile)
+
+router.post('/forgot-password', authController.reset)
+router.put('/reset-password/:token', authController.resetPassword);
+
+router.put('/editProfile/:userId', upload.single('profileImage'), authController.editProfile);
+router.get('/myprofile', authenticateToken, authController.myprofile);
+
 
 module.exports = router;

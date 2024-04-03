@@ -11,14 +11,12 @@ const AuthRoutes = require('./routers/authRoutes');
 const InstitutionRoutes = require('./routers/InstitutionRoutes');
 const CategoryRoutes = require('./routers/CategoryRoutes');
 const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
-
-const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
 const formRoutes = require('./routers/form.route');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const httpServer = http.createServer(app);
-
 
 const io = new Server(httpServer, {
     cors: {
@@ -53,7 +51,6 @@ io.on("connection", (socket) => {
         console.log("Client disconnected:", socket.id);
     });
 });
-
 // Routes
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
 app.use('/auth',AuthRoutes);
@@ -76,9 +73,28 @@ mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
     useUnifiedTopology: true,
 });
 
+
+app.get('/api/verify-token', (req, res) => {
+    // Check if token exists in the request headers or cookies
+    const authorizationHeader = req.headers.authorization;
+    const token = authorizationHeader ? authorizationHeader.split(" ")[1] : req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const secretKey = "sarrarayen"; // Replace with your actual secret key
+
+    // Verify the token using the secret key
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        const userId = decoded.userId; // Extract the user ID from the decoded token payload
+        res.json({ userId: userId }); // Send the user ID in the response
+    });
+});
 // Démarrage du serveur
 const PORT = 3001;
-
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
