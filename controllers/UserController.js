@@ -162,3 +162,24 @@ exports.updateUserRole= async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+
+  exports.getUserNameById = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Concaténer le nom et le prénom pour former une seule chaîne
+        const fullName = `${user.name} ${user.lastname}`;
+
+        // Retourner la chaîne contenant le nom complet de l'utilisateur
+        res.json({ fullName });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

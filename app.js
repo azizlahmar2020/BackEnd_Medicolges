@@ -11,8 +11,6 @@ const AuthRoutes = require('./routers/authRoutes');
 const InstitutionRoutes = require('./routers/InstitutionRoutes');
 const CategoryRoutes = require('./routers/CategoryRoutes');
 const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
-
-const FormRoutes = require('./routers/formRoutes');
 const projectRoutes = require('./routers/projectRoutes');
 const formRoutes = require('./routers/form.route');
 
@@ -71,14 +69,13 @@ app.use('/auth',AuthRoutes);
 
 
 // Connexion à la base de données mongoose
-mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
+mongoose.connect("mongodb://127.0.0.1:27017/MediColGes", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
 
 // Démarrage du serveur
 const PORT = 3001;
-
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
