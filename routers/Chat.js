@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const ConversationModel = require('../models/Conversation');
 const MessageModel = require('../models/Message');
+const jwt = require('jsonwebtoken');
+const UserModel = require('../models/user');
 
 module.exports = function (io) {
     router.get('/getExistingRoom/:emitterId/:receiverId', async (req, res) => {
@@ -91,9 +93,6 @@ module.exports = function (io) {
         }
     });
 
-<<<<<<< Updated upstream
-=======
-
     router.get('/getRoom/:idUser1',async(req,res)=>{     
            const idUser1 = req.params.idUser1;
         try {
@@ -109,7 +108,6 @@ module.exports = function (io) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
-
 
 
     
@@ -135,8 +133,6 @@ router.get('/getUsername/:id', async (req, res) => {
 });
 
 
-
->>>>>>> Stashed changes
     router.get('/getMessages/:room', async (req, res) => {
         const room = req.params.room;
         try {

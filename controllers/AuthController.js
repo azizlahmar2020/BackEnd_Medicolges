@@ -105,6 +105,8 @@ exports.myprofile = (req, res) => {
   
       const userId = decoded.userId; // Extract the user ID from the decoded token payload
   
+      console.log('User ID:', userId); // Log the user ID
+  
       // Continue with retrieving user profile using the user ID
       UserModel.findById(userId)
         .then(user => {
@@ -119,7 +121,6 @@ exports.myprofile = (req, res) => {
         });
     });
   };
-
 router.get('/logout', async (req, res) => {
     req.session.destroy();
     res.json({ status: "Logged out" });
@@ -140,14 +141,18 @@ const verifyUser = (req, res, next) => {
         });
     }
 };
-
 exports.getIdMyProfile = (req, res) => {
-    // Maintenant, vous pouvez accéder à l'objet de session utilisateur en utilisant req.userSession
+    // Assurez-vous que req.userSession contient l'ID de session
     const userSession = req.userSession;
-
-    // Répondez avec l'objet de session utilisateur
-    res.json({ userSession });
-};
-
-
+  
+    // Vérifiez si l'ID de session existe
+    if (userSession && userSession.sessionId) {
+      // Répondez avec l'objet de session utilisateur
+      res.json({ userSession });
+    } else {
+      // S'il n'y a pas d'ID de session, répondez avec un code d'erreur approprié
+      res.status(400).json({ error: "Session ID not found" });
+    }
+  };
+  
 
