@@ -22,5 +22,10 @@ router.get('/showProjectsOfUser', projectController.getAllProjectsOfUser);
 
 router.post('/addMember/:projectId/:memberId', projectController.addMember);
 
+// Like a project
+router.post('/likeProject/:projectId', projectController.likeProject);
+
+// Route to add comment to a project
+router.post('/addComment/:projectId', projectController.addComment);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 // controllers/projectController.js
 const Project = require('../models/projects');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 exports.createProjectt = async (req, res) => {
   try {
@@ -180,4 +181,78 @@ exports.addMember = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
   }
+};
+// Add like to a project
+exports.likeProject = async (req, res) => {
+  const { projectId } = req.params; // Extract projectId from URL parameters
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Increment the number of likes for the project
+    project.likes += 1;
+
+    // Save the updated project with the incremented likes count
+    await project.save();
+
+    return res.status(200).json({ message: 'Project liked successfully', project });
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Add comment to a project
+// Add comment to a project
+exports.addComment = async (req, res) => {
+  const { projectId } = req.params;
+  const { comment } = req.body;
+
+  // Check if token exists in the request headers or cookies
+  const authorizationHeader = req.headers.authorization;
+  const token = authorizationHeader ? authorizationHeader.split(" ")[1] : req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+    const secretKey = "sarrarayen"; // Replace with your actual secret key
+
+  // Verify the token using the secret key
+  jwt.verify(token, secretKey, async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+
+    const userId = decoded.userId; // Extract the user ID from the decoded token payload
+
+    try {
+      const project = await Project.findById(projectId);
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+       // Push an object with user information and comment fields into the comments array
+    project.comments.push({ 
+      userId, 
+      user: { 
+        name: user.name, 
+        lastname: user.lastname, 
+        profileImage: user.profileImage 
+      }, 
+      comment 
+    });
+
+      const updatedProject = await project.save();
+
+      res.status(200).json({ message: 'Comment added successfully', project: updatedProject });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 };
