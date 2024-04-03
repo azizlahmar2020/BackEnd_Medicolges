@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const UserModel = require('../models/user');
-const upload = require('../config/multerConfig'); // Import the upload object
 
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
+
+
+
 
 
 exports.showUsers = async (req, res) => {
@@ -38,49 +39,25 @@ exports.showUsers = async (req, res) => {
   }
 };
 
+exports.countUsers = async (req, res) => {
+  try {
+    // Count the total number of users in the database
+    const totalUsersCount = await UserModel.countDocuments();
+
+    // Respond with the total number of users
+    res.json({ totalUsers: totalUsersCount });
+  } catch (error) {
+    // Handle errors
+    console.error("Error counting users:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 exports.getUserById = async(req, res) => {
     const id = req.params.id;
     UserModel.findById(id)
         .then(user => res.json(user))
         .catch(err => res.json(err));
-};
-exports.updateUser = async (req, res) => {
-  const userId = req.params.id;
-  const { name, lastname, email, gender, birthdate } = req.body;
-
-  try {
-      // Check if a new profile image is uploaded
-      const profileImage = req.file ? req.file.filename : null;
-
-      // Update the user with the new details including the profile image
-      const updateObject = {
-          name,
-          lastname,
-          email,
-          gender,
-          birthdate,
-      };
-
-      if (profileImage) {
-          updateObject.profileImage = profileImage;
-      }
-
-      const updatedUser = await UserModel.findByIdAndUpdate(
-          userId,
-          updateObject,
-          { new: true }
-      ); // Use { new: true } to return the updated document
-
-      if (!updatedUser) {
-          return res.status(404).json({ error: "User not found" });
-      }
-
-      res.json(updatedUser);
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-  }
 };
 
 

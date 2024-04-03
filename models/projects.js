@@ -1,5 +1,6 @@
 // models/projects.js
 const mongoose = require('mongoose');
+const User = require('./user'); // Adjust the path as needed
 
 const projectSchema = new mongoose.Schema({
   nom: {
@@ -23,6 +24,10 @@ const projectSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  creationDate: {
+    type: Date,
+    default: Date.now, // Set the default value to the current date
+  },
   members: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -45,6 +50,8 @@ const projectSchema = new mongoose.Schema({
       default: Date.now,
     },
   }],
+
+
 });
 
 const Project = mongoose.model('Project', projectSchema);

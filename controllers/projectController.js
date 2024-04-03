@@ -3,6 +3,7 @@ const Project = require('../models/projects');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+
 exports.createProjectt = async (req, res) => {
   try {
     // Get the data from the request body
@@ -63,7 +64,9 @@ exports.createProject = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};// Get all projects
+};
+
+// Get all projects
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
@@ -72,6 +75,7 @@ exports.getAllProjects = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.getAllProjectsOfUser = async (req, res) => {
   try {
     const authorizationHeader = req.headers.authorization;
@@ -182,6 +186,17 @@ exports.addMember = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Route to fetch project data
+exports.fetchProjects= async (req, res) => {
+  try {
+    const projects = await Project.find();
+    res.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 // Add like to a project
 exports.likeProject = async (req, res) => {
   const { projectId } = req.params; // Extract projectId from URL parameters
@@ -204,7 +219,6 @@ exports.likeProject = async (req, res) => {
   }
 };
 
-// Add comment to a project
 // Add comment to a project
 exports.addComment = async (req, res) => {
   const { projectId } = req.params;
@@ -255,4 +269,26 @@ exports.addComment = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+};
+
+exports.likeProject = async (req, res) => {
+  const { projectId } = req.params; // Extract projectId from URL parameters
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Increment the number of likes for the project
+    project.likes += 1;
+
+    // Save the updated project with the incremented likes count
+    await project.save();
+
+    return res.status(200).json({ message: 'Project liked successfully', project });
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+
 };

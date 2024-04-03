@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const projectController = require('../controllers/projectController');
+const requireAuth = require('../middelware/requireAuth')
 
 // Get all projects
 router.get('/showProjects', projectController.getAllProjects);
@@ -21,6 +22,9 @@ router.post('/createProjectt', projectController.createProjectt);
 router.get('/showProjectsOfUser', projectController.getAllProjectsOfUser);
 
 router.post('/addMember/:projectId/:memberId', projectController.addMember);
+
+router.get('/fetchProjects', projectController.fetchProjects);
+
 
 // Like a project
 router.post('/likeProject/:projectId', projectController.likeProject);
