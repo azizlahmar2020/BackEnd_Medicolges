@@ -69,7 +69,7 @@ app.use('/auth',AuthRoutes);
 
 
 // Connexion à la base de données mongoose
-mongoose.connect("mongodb://127.0.0.1:27017/MediColGes", {
+mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
