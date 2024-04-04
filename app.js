@@ -13,6 +13,8 @@ const CategoryRoutes = require('./routers/CategoryRoutes');
 const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
 const projectRoutes = require('./routers/projectRoutes');
 const formRoutes = require('./routers/form.route');
+const  Rdv  = require("./routers/RDVRoutes");
+
 const jwt = require('jsonwebtoken');
 
 const app = express();
@@ -52,6 +54,8 @@ io.on("connection", (socket) => {
     });
 });
 // Routes
+app.use("/rdv",Rdv); // Utilisez ici la route pour le calendrier
+
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
 app.use('/auth',AuthRoutes);
  app.use('/users',UserRoutes);
