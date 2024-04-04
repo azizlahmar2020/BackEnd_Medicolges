@@ -54,6 +54,8 @@ io.on("connection", (socket) => {
     });
 });
 // Routes
+app.use("/rdv",Rdv); // Utilisez ici la route pour le calendrier
+
 app.use("/Chat", ChatRouter(io)); // Passer io au routeur
 app.use('/auth',AuthRoutes);
  app.use('/users',UserRoutes);
