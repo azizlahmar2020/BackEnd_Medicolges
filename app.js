@@ -13,6 +13,8 @@ const CategoryRoutes = require('./routers/CategoryRoutes');
 const SubcategoryRoutes = require('./routers/SubcategoryRoutes');
 const projectRoutes = require('./routers/projectRoutes');
 const formRoutes = require('./routers/form.route');
+const  Rdv  = require("./routers/RDVRoutes");
+
 const jwt = require('jsonwebtoken');
 
 const app = express();
@@ -58,7 +60,8 @@ app.use('/auth',AuthRoutes);
  app.use('/projects', projectRoutes);
   app.use('/profiles', express.static('public/profiles'));
   app.use('/', InstitutionRoutes);
-  
+  app.use("/rdv",Rdv); // Utilisez ici la route pour le calendrier
+
   // Use Category routes after establishing connection to the database
   app.use('/', CategoryRoutes);
 
