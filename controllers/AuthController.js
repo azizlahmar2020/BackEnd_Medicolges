@@ -8,34 +8,34 @@ const nodemailer = require('nodemailer');
 
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await UserModel.findOne({ email: email });
-        if (!user) {
-            return res.json("No record existed");
-        }
-        const passwordCorrect = await bcrypt.compare(password, user.password);
-        if (passwordCorrect) {
-            const secretKey = "sarrarayen"; 
-            const expiration = '2h'; 
-            jwt.sign(
-                { userId: user._id, email: user.email },
-                secretKey,
-                { expiresIn: expiration },
-                (err, token) => {
-                  if (err) {
-                    return res.status(500).json({ error: "Failed to generate token" });
-                  }
-                  const profilePageUrl = "/myprofile"; // Replace with the actual profile page URL
-                  return res.json({ token, profilePageUrl });
+  const { email, password } = req.body;
+  try {
+      const user = await UserModel.findOne({ email: email });
+      if (!user) {
+          return res.status(404).json("No record existed");
+      }
+      const passwordCorrect = await bcrypt.compare(password, user.password);
+      if (passwordCorrect) {
+          const secretKey = "sarrarayen"; // Assurez-vous que votre clé secrète est sécurisée et idéalement stockée dans des variables d'environnement.
+          const expiration = '2h'; 
+          jwt.sign(
+              { userId: user._id, email: user.email, role: user.role }, // Inclure le rôle ici
+              secretKey,
+              { expiresIn: expiration },
+              (err, token) => {
+                if (err) {
+                  return res.status(500).json({ error: "Failed to generate token" });
                 }
-              );
-        } else {
-            return res.json("wrong password");
-        }
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+                // Incluez le rôle de l'utilisateur dans la réponse, en plus du token.
+                return res.json({ token, role: user.role }); // Supprimez profilePageUrl si vous n'en avez pas besoin ou ajustez selon vos besoins
+              }
+            );
+      } else {
+          return res.status(401).json("Wrong password");
+      }
+  } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 exports.editProfile = async (req, res) => {

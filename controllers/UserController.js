@@ -7,37 +7,37 @@ const jwt = require('jsonwebtoken');
 
 
 
-
 exports.showUsers = async (req, res) => {
   try {
-      // Check if token exists in the request headers
+      // Vérifiez si le token existe dans les en-têtes de la requête
       const authorizationHeader = req.headers.authorization;
       if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
           return res.status(401).json({ error: "Unauthorized" });
       }
 
-      // Extract the token from the authorization header
+      // Extrait le token de l'en-tête d'autorisation
       const token = authorizationHeader.split(" ")[1];
 
-      // Verify the token using the secret key
-      const secretKey = "sarrarayen"; // Replace with your actual secret key
+      // Vérifie le token à l'aide de la clé secrète
+      const secretKey = "sarrarayen"; // Remplacez par votre véritable clé secrète
       const decoded = jwt.verify(token, secretKey);
 
-      // Extract the user ID from the decoded token
+      // Extrait l'ID de l'utilisateur du token décodé
       const userId = decoded.userId;
 
-      // Fetch users from the database
-      const users = await UserModel.find({}, 'name lastname email gender birthdate role profileImage');
+      // Recherchez les utilisateurs dans la base de données, excluant les utilisateurs avec le rôle 'admin'
+      const users = await UserModel.find({ role: { $ne: 'admin' } }, 'name lastname email gender birthdate role profileImage');
 
-      // Respond with the users and session ID
+      // Répond avec les utilisateurs et l'ID de session
       res.json({ users: users, sessionId: userId });
   } catch (error) {
       if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
           return res.status(401).json({ error: "Invalid token" });
       }
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.countUsers = async (req, res) => {
   try {
