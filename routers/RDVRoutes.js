@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const RendezVous = require('../models/RDV');
+const cron = require('node-cron');
 
 // Route pour récupérer tous les rendez-vous
 router.get('/rend', async (req, res) => {
@@ -93,5 +94,24 @@ router.get('/getDoctorRdv/:id',async( req,res)=>{
     res.status(500).json({ message: err.message });
   }
 })
+const updateRdvStatus = async () => {
+  try {
+    const today = new Date();
+    const rdvs = await RendezVous.find({ date: { $lt: today } });
+
+    // Mettre à jour le statut de chaque rendez-vous trouvé en "Retard"
+    rdvs.forEach(async (rdv) => {
+      rdv.Status = "Late";
+      await rdv.save();
+    });
+
+    console.log("Statut des rendez-vous mis à jour avec succès.");
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut des rendez-vous :", error);
+  }
+};
+
+// Planifiez la tâche pour s'exécuter tous les jours à minuit
+cron.schedule('* * * * *', updateRdvStatus);
 
 module.exports = router;
