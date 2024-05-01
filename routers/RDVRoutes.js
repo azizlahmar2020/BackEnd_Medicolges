@@ -20,7 +20,9 @@ router.post('/add', async (req, res) => {
     date: req.body.date,
     heure: req.body.heure,
     docteur: req.body.docteur,
-    patient: req.body.patient
+    patient: req.body.patient,
+    RoomUrl: req.body.RoomUrl,
+    Status:req.body.Status
   });
 
   try {
@@ -54,6 +56,25 @@ router.patch('/update/:id', async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+router.get('/getRdv/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Recherche des rendez-vous pour un docteur ou un patient en fonction de leur ID
+    const rendezVous = await RendezVous.find({ $or: [{ docteur: id }, { patient: id }] });
+
+    if (!rendezVous) {
+      return res.status(404).json({ message: "Aucun rendez-vous trouvé pour cet utilisateur." });
+    }
+
+    res.status(200).json(rendezVous);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des rendez-vous :", error);
+    res.status(500).json({ message: "Erreur serveur lors de la récupération des rendez-vous." });
+  }
+});
+
 
 router.get('/getPatientRdv/:id',async( req,res)=>{
   try {

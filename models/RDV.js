@@ -20,6 +20,14 @@ const rendezVousSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Patient',
     required: true
+  },
+  RoomUrl: {
+    type: String,
+    required: true
+  },
+  Status:{
+    type: String,
+    required:true
   }
 });
 
