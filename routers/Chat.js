@@ -27,30 +27,37 @@ module.exports = function (io) {
 
     io.on("connection", (socket) => {
         console.log(`User Connected: ${socket.id}`);
-
+    
         socket.on("join_room", async ({ emitterId, receiverId }) => {
             const roomId = await getOrCreateRoom(emitterId, receiverId);
-
+    
             socket.join(roomId);
             console.log(`User with ID: ${socket.id} joined room: ${roomId}`);
         });
-
+    
         socket.on("send_message", async (data) => {
             console.log("Received message data:", data);
-
+    
             try {
                 await saveMessage(data.room, data.author, data.message, data.image);
-                io.to(data.room).emit("receive_message", data);
+                io.emit("receive_message", data);
+                
                 console.log(`Message sent to room ${data.room} by ${data.author}`);
             } catch (error) {
                 console.error("Error saving or sending message:", error);
             }
         });
-
+    
+        // Ajoutez cette partie pour écouter uniquement le message "receive_message"
+        socket.on("receive_message", (data) => {
+            console.log("Received messag   jhhe:", data);
+        });
+    
         socket.on("disconnect", () => {
             console.log(`User Disconnected: ${socket.id}`);
         });
     });
+    
 
     const saveMessage = async (roomId, author, message, image) => {
         try {

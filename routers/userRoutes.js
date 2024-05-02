@@ -10,6 +10,6 @@ router.put('/updateUserRole/:id', userController.updateUserRole);
 router.get('/getUserByEmail/:email', userController.getUserByEmail); // New route for getUserByEmail
 router.get('/getUserFullName/:id', userController.getUserNameById);
 router.get('/count', userController.countUsers);
-
+router.get('/getUserImage/:id', userController.getUserImageById);
 
 module.exports = router;

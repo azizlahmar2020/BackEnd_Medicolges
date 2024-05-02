@@ -139,6 +139,29 @@ exports.updateUserRole= async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+  exports.getUserImageById = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const user = await UserModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        // Récupérer l'image de profil de l'utilisateur
+        const profileImage = user.profileImage;
+        // Si l'image de profil existe, vous pouvez la retourner
+        if (profileImage) {
+            // Retourner l'URL de l'image de profil
+            res.json({ profileImage });
+        } else {
+            // Si l'utilisateur n'a pas d'image de profil, retournez un message indiquant que l'image n'a pas été trouvée
+            res.status(404).json({ error: "Profile image not found" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 
   exports.getUserNameById = async (req, res) => {
     const id = req.params.id;
