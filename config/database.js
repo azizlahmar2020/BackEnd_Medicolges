@@ -3,7 +3,7 @@
 
   const connectDB = async () => {
     try {
-      await mongoose.connect('mongodb://localhost:27017/MediColges');
+      await mongoose.connect('mongodb+srv://lahmarmohamedaziz:75941306@cluster0.v3x7igc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
       console.log('MongoDB Connected');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);

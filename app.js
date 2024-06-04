@@ -73,7 +73,7 @@ app.use('/auth',AuthRoutes);
 
 
 // Connexion à la base de données mongoose
-mongoose.connect("mongodb://127.0.0.1:27017/MediColges", {
+mongoose.connect("mongodb+srv://lahmarmohamedaziz:75941306@cluster0.v3x7igc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
